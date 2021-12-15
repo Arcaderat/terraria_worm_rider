@@ -1,0 +1,3 @@
+displayName = Worm Rider Boss
+author = Arcaderat
+version = 0.1
