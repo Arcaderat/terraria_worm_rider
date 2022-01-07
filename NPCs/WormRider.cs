@@ -3,8 +3,11 @@ using Terraria;
 
 namespace WormRiderBoss.NPCs
 {
+	//loads the head icon for the minimap
+	[AutoloadBossHead]
 	public class WormRider : ModNPC
 	{
+		
 		int frameNum;
 		public override void SetStaticDefaults(){
 			DisplayName.SetDefault("The Worm Rider");
