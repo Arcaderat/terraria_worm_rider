@@ -13,7 +13,7 @@ namespace WormRiderBoss.NPCs
 		}
 		public override void SetDefaults() {
 			//TODO adjust default settings to balance the boss and also so they make sense for our specific boss
-			npc.aiStyle = 2;
+			npc.aiStyle = 3;
 			npc.lifeMax = 40000;
 			npc.damage = 1;
 			npc.defense = 0;
@@ -21,8 +21,10 @@ namespace WormRiderBoss.NPCs
 			npc.width = 57;
 			npc.height = 57;
 			npc.boss = true;
-			npc.noGravity = true;
-			npc.noTileCollide = true;
+			npc.noGravity = false;
+			npc.noTileCollide = false;
+			//prevents the game from despawning the WormRider if you get too far away from it
+			npc.boss = true;
 			
 			frameNum = 0;
 		}
