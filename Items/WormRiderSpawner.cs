@@ -1,6 +1,7 @@
 using Terraria;
 using Terraria.ModLoader;
 using Terraria.ID;
+using WormRiderBoss.NPCs;
 
 namespace WormRiderBoss.Items
 {
@@ -35,8 +36,10 @@ namespace WormRiderBoss.Items
         // We use the CanUseItem hook to prevent a player from using this item while the boss is present in the world.
 		public override bool CanUseItem(Player player) {
             //TODO only allow spawning in desert?
-            //TODO only allow one spawn
 			//prevent the player from spawning more than one at a time
+			if (NPC.AnyNPCs(ModContent.NPCType<WormRider>())) {
+				return false;
+			}
 			return true;
 		}
 	}
