@@ -38,7 +38,7 @@ namespace WormRiderBoss.NPCs
 				npc.frame.Y = 0 * frameHeight;
 			}else if(frameNum < 30){
 				npc.frame.Y = 1 * frameHeight;
-			}else if(frameNum < 30){
+			}else if(frameNum < 45){
 				npc.frame.Y = 2 * frameHeight;
 			}else{
 				npc.frame.Y = 3 * frameHeight;
