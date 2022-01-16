@@ -120,7 +120,7 @@ namespace WormRiderBoss.NPCs
 			{
 				//int damage = Main.expertMode ? 60 : 80;
 				int damage = 0;
-				//Projectile.NewProjectile(npc.Center.X, npc.Center.Y, 0f, 0f, ModContent.ProjectileType<Hook>(), damage, 0f, Main.myPlayer, npc.whoAmI, timeMultiplier);
+				Projectile.NewProjectile(npc.Center.X, npc.Center.Y, 0f, 0f, ModContent.ProjectileType<Projectiles.Hook>(), damage, 0f, Main.myPlayer, npc.whoAmI, timeMultiplier);
 				attackProgress = 240;
 			}
 			attackProgress--;

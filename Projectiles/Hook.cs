@@ -12,11 +12,11 @@ namespace WormRiderBoss.Projectiles
 		public override void SetDefaults()
 		{
 			//mod.Logger.Info("worm hook spawned");
-			DisplayName.SetDefault("WORM HOOK BOIS");
+			//DisplayName.SetDefault("WORM HOOK BOIS");
 			Main.projFrames[projectile.type] = 10;
 			projectile.width = 40; 
 			projectile.height = 40; 
-			projectile.timeLeft = 600; 
+			projectile.timeLeft = 60; 
 			projectile.penetrate = 1; 
 			projectile.friendly = false; 
 			projectile.hostile = true; 
