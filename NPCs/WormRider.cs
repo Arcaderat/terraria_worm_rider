@@ -84,8 +84,8 @@ namespace WormRiderBoss.NPCs
 			npc.damage = 1;
 			npc.defense = 0;
 			npc.knockBackResist = 0f;
-			npc.width = 57;
-			npc.height = 57;
+			npc.width = 70;
+			npc.height = 104;
 			npc.boss = true;
 			npc.noGravity = false;
 			npc.noTileCollide = false;
@@ -114,14 +114,15 @@ namespace WormRiderBoss.NPCs
 			frameNum = (frameNum + 1) % 60;
 		}
 
-		private void SnakeAttack()
+		private void Hookem()
 		{
 			if (attackProgress == 0)
 			{
 				//int damage = Main.expertMode ? 60 : 80;
-				int damage = 0;
-				Projectile.NewProjectile(npc.Center.X, npc.Center.Y, 0f, 0f, ModContent.ProjectileType<Projectiles.Hook>(), damage, 0f, Main.myPlayer, npc.whoAmI, timeMultiplier);
-				attackProgress = 240;
+				int damage = 10;
+				Projectile.NewProjectile(npc.Center.X + 70, npc.Center.Y - 20, 0f, 0f, ModContent.ProjectileType<Projectiles.HookRight>(), damage, 0f, Main.myPlayer, npc.whoAmI, 0f);
+				Projectile.NewProjectile(npc.Center.X - 80, npc.Center.Y - 20, 0f, 0f, ModContent.ProjectileType<Projectiles.HookLeft>(), damage, 0f, Main.myPlayer, npc.whoAmI, 0f);
+				attackProgress = 120;
 			}
 			attackProgress--;
 			if (attackProgress < 0)
@@ -187,7 +188,7 @@ namespace WormRiderBoss.NPCs
 		*/
 		private void DoAttack(int numAttacks)
 		{
-			SnakeAttack();
+			Hookem();
 			if (attackProgress == 0)
 			{
 				attackTimer += 160f * timeMultiplier;
@@ -208,21 +209,6 @@ namespace WormRiderBoss.NPCs
 		{
 			mod.Logger.Info("it died");
 			return true;
-		}
-
-		public void hookem() {
-			if (attackProgress == 0)
-			{
-				int damage = Main.expertMode ? 60 : 80;
-				//Projectile.NewProjectile(npc.Center.X, npc.Center.Y, 0f, 0f, ModContent.ProjectileType<Hook>(), damage, 0f, Main.myPlayer, npc.whoAmI, timeMultiplier);
-				attackProgress = 240;
-			}
-			attackProgress--;
-			if (attackProgress < 0)
-			{
-				attackProgress = 0;
-			}
-
 		}
 
 
