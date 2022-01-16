@@ -84,10 +84,11 @@ namespace WormRiderBoss.NPCs
 			npc.damage = 1;
 			npc.defense = 0;
 			npc.knockBackResist = 0f;
-			npc.width = 57;
-			npc.height = 57;
+			npc.width = 70;
+			npc.height = 104;
 			npc.boss = true;
 			npc.noGravity = false;
+			npc.friendly = false;
 			npc.noTileCollide = false;
 			//prevents the game from despawning the WormRider if you get too far away from it
 			npc.boss = true;
@@ -114,21 +115,47 @@ namespace WormRiderBoss.NPCs
 			frameNum = (frameNum + 1) % 60;
 		}
 
-		private void SnakeAttack()
+		private void Hookem()
 		{
 			if (attackProgress == 0)
 			{
+				attackProgress = 1;
 				//int damage = Main.expertMode ? 60 : 80;
-				int damage = 0;
-				Projectile.NewProjectile(npc.Center.X, npc.Center.Y, 0f, 0f, ModContent.ProjectileType<Projectiles.Hook>(), damage, 0f, Main.myPlayer, npc.whoAmI, timeMultiplier);
-				attackProgress = 240;
+				int damage = 10;
+				Projectile.NewProjectile(npc.Center.X + 70, npc.Center.Y - 20, 0f, 0f, ModContent.ProjectileType<Projectiles.HookRight>(), damage, 0f, Main.myPlayer, npc.whoAmI, 0f);
+				Projectile.NewProjectile(npc.Center.X - 80, npc.Center.Y - 20, 0f, 0f, ModContent.ProjectileType<Projectiles.HookLeft>(), damage, 0f, Main.myPlayer, npc.whoAmI, 0f);
+				attackProgress = 120;
 			}
 			attackProgress--;
 			if (attackProgress < 0)
 			{
-				attackProgress = 0;	
+				attackProgress = 0;
 			}
 		}
+
+		private void WormWall() {
+			if (attackProgress == 0)
+			{
+				attackProgress = 10;
+				if (NPC.CountNPCS(510) < 12)
+				{
+
+					NPC.NewNPC((int)npc.Center.X + 300, (int)Main.player[npc.target].Center.Y - 500, 510);
+					NPC.NewNPC((int)npc.Center.X - 300, (int)Main.player[npc.target].Center.Y - 500, 510);
+					NPC.NewNPC((int)npc.Center.X + 600, (int)Main.player[npc.target].Center.Y - 500, 510);
+					NPC.NewNPC((int)npc.Center.X - 600, (int)Main.player[npc.target].Center.Y - 500, 510);
+					NPC.NewNPC((int)npc.Center.X + 900, (int)Main.player[npc.target].Center.Y - 500, 510);
+					NPC.NewNPC((int)npc.Center.X - 900, (int)Main.player[npc.target].Center.Y - 500, 510);
+
+				}
+			}
+			attackProgress--;
+			if (attackProgress < 0)
+			{
+				attackProgress = 0;
+			}
+		}
+
 		/*
 		private void DoAttack(int numAttacks)
 		{
@@ -187,7 +214,16 @@ namespace WormRiderBoss.NPCs
 		*/
 		private void DoAttack(int numAttacks)
 		{
-			SnakeAttack();
+			int choice = Main.rand.Next(2);
+			switch (choice)
+            {
+				case 0:
+					Hookem();
+					break;
+				case 1:
+					WormWall();
+					break;
+			}
 			if (attackProgress == 0)
 			{
 				attackTimer += 160f * timeMultiplier;
@@ -235,21 +271,6 @@ namespace WormRiderBoss.NPCs
 			return true;
 		}
 
-		public void hookem() {
-			if (attackProgress == 0)
-			{
-				int damage = Main.expertMode ? 60 : 80;
-				//Projectile.NewProjectile(npc.Center.X, npc.Center.Y, 0f, 0f, ModContent.ProjectileType<Hook>(), damage, 0f, Main.myPlayer, npc.whoAmI, timeMultiplier);
-				attackProgress = 240;
-			}
-			attackProgress--;
-			if (attackProgress < 0)
-			{
-				attackProgress = 0;
-			}
-
-		}
-
 		private void Jump(NPC npc, int velocity){
 			if(npc.velocity.Y == 0)
 			{
@@ -289,9 +310,5 @@ namespace WormRiderBoss.NPCs
 			}
 			npc.velocity = move;
 		}
-
-
-
-
 	}
 }
