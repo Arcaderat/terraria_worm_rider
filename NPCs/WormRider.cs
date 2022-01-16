@@ -79,7 +79,7 @@ namespace WormRiderBoss.NPCs
 		}
 		public override void SetDefaults() {
 			//TODO adjust default settings to balance the boss and also so they make sense for our specific boss
-			npc.aiStyle = 0;
+			npc.aiStyle = 3;
 			npc.lifeMax = 40000;
 			npc.damage = 1;
 			npc.defense = 0;
@@ -199,7 +199,32 @@ namespace WormRiderBoss.NPCs
 
 		public override void AI()
 		{
-			
+			//Targeting
+			npc.TargetClosest(true);
+			Player player = Main.player[npc.target];
+			Vector2 target = npc.HasPlayerTarget ? player.Center : Main.npc[npc.target].Center;
+			//NPC Rotation
+			npc.rotation = 0.0f;
+			npc.netAlways = true;
+			npc.TargetClosest(true);
+			//Ensures NPC Life is not greater than its max
+			if (npc.life >= npc.lifeMax)
+				npc.life = npc.lifeMax;
+			//Handles Despawning
+			if(npc.target < 0 || npc.target == 255 || player.dead || !player.active){
+				npc.TargetClosest(false);
+				if(npc.timeLeft > 20){
+					npc.timeLeft = 20;
+					return;
+				}
+			}
+			//Movement
+			int distance = (int)Vector2.Distance(target, npc.Center);
+			MoveTowards(npc, target, (float)(distance > 300 ? 13f : 7f), 30f);
+			npc.netUpdate = true;
+			Jump(npc, 10);
+			//npc.netUpdate = true;
+			//Attack
 			npc.timeLeft = NPC.activeTime;
 			DoAttack(5);
 		}
@@ -223,6 +248,46 @@ namespace WormRiderBoss.NPCs
 				attackProgress = 0;
 			}
 
+		}
+
+		private void Jump(NPC npc, int velocity){
+			if(npc.velocity.Y == 0)
+			{
+			  npc.ai[0] = 8;
+			}
+			if(npc.ai[0] > 0)
+			{
+			  npc.velocity.Y -= 8f;
+			  npc.ai[0]--;
+			}
+		}
+		private void MoveTowards(NPC npc, Vector2 playerTarget, float speed, float turnResistance){
+			var move = playerTarget - npc.Center;
+			float length = move.Length();
+			if(length > speed){
+				move *= speed / length;
+			}
+			move = (npc.velocity * turnResistance + move) / (turnResistance + 1f);
+			length = move.Length();
+			if(length > speed)
+			{
+				move *= speed / length;
+			}
+			npc.velocity = move;
+		}
+		private void MoveAway(NPC npc, Vector2 playerTarget, float speed, float turnResistance){
+			var move = -(playerTarget - npc.Center);
+			float length = move.Length();
+			if(length > speed){
+				move *= speed / length;
+			}
+			move = (npc.velocity * turnResistance + move) / (turnResistance + 1f);
+			length = move.Length();
+			if(length > speed)
+			{
+				move *= speed / length;
+			}
+			npc.velocity = move;
 		}
 
 
