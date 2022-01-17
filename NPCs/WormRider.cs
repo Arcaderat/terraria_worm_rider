@@ -140,12 +140,12 @@ namespace WormRiderBoss.NPCs
 				if (NPC.CountNPCS(510) < 12)
 				{
 
-					NPC.NewNPC((int)npc.Center.X + 300, (int)Main.player[npc.target].Center.Y - 500, 510);
-					NPC.NewNPC((int)npc.Center.X - 300, (int)Main.player[npc.target].Center.Y - 500, 510);
-					NPC.NewNPC((int)npc.Center.X + 600, (int)Main.player[npc.target].Center.Y - 500, 510);
-					NPC.NewNPC((int)npc.Center.X - 600, (int)Main.player[npc.target].Center.Y - 500, 510);
-					NPC.NewNPC((int)npc.Center.X + 900, (int)Main.player[npc.target].Center.Y - 500, 510);
-					NPC.NewNPC((int)npc.Center.X - 900, (int)Main.player[npc.target].Center.Y - 500, 510);
+					NPC.NewNPC((int)npc.Center.X + 300, (int)Main.player[npc.target].Center.Y - 500, ModContent.NPCType<SkyWorm>());
+					NPC.NewNPC((int)npc.Center.X - 300, (int)Main.player[npc.target].Center.Y - 500, ModContent.NPCType<SkyWorm>());
+					NPC.NewNPC((int)npc.Center.X + 600, (int)Main.player[npc.target].Center.Y - 500, ModContent.NPCType<SkyWorm>());
+					NPC.NewNPC((int)npc.Center.X - 600, (int)Main.player[npc.target].Center.Y - 500, ModContent.NPCType<SkyWorm>());
+					NPC.NewNPC((int)npc.Center.X + 900, (int)Main.player[npc.target].Center.Y - 500, ModContent.NPCType<SkyWorm>());
+					NPC.NewNPC((int)npc.Center.X - 900, (int)Main.player[npc.target].Center.Y - 500, ModContent.NPCType<SkyWorm>());
 
 				}
 			}
