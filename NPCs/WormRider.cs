@@ -136,7 +136,7 @@ namespace WormRiderBoss.NPCs
 		private void WormWall() {
 			if (attackProgress == 0)
 			{
-				attackProgress = 10;
+				attackProgress = 4;
 				if (NPC.CountNPCS(510) < 12)
 				{
 
