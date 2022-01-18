@@ -15,11 +15,7 @@ namespace WormRiderBoss.NPCs
 	[AutoloadBossHead]
 	public class WormRider : ModNPC
 	{
-		internal int attackProgress
-		{
-			get => (int)npc.ai[3];
-			private set => npc.ai[3] = value;
-		}
+		private int attackProgress;
 
 		private float attackTimer
 		{
@@ -79,6 +75,7 @@ namespace WormRiderBoss.NPCs
 		}
 		public override void SetDefaults() {
 			//TODO adjust default settings to balance the boss and also so they make sense for our specific boss
+			attackProgress = 0;
 			npc.aiStyle = 3;
 			npc.lifeMax = 40000;
 			npc.damage = 1;
@@ -119,11 +116,11 @@ namespace WormRiderBoss.NPCs
 		{
 			if (attackProgress == 0)
 			{
-				attackProgress = 1;
+				attackProgress = 10;
 				//int damage = Main.expertMode ? 60 : 80;
 				int damage = 10;
-				Projectile.NewProjectile(npc.Center.X + 70, npc.Center.Y - 20, 0f, 0f, ModContent.ProjectileType<Projectiles.HookRight>(), damage, 0f, Main.myPlayer, npc.whoAmI, 0f);
-				Projectile.NewProjectile(npc.Center.X - 80, npc.Center.Y - 20, 0f, 0f, ModContent.ProjectileType<Projectiles.HookLeft>(), damage, 0f, Main.myPlayer, npc.whoAmI, 0f);
+				Projectile.NewProjectile(npc.Center.X + 70, npc.Center.Y - 20, npc.velocity.X, npc.velocity.Y, ModContent.ProjectileType<Projectiles.HookRight>(), damage, 0f, Main.myPlayer, npc.whoAmI, 0f);
+				Projectile.NewProjectile(npc.Center.X - 80, npc.Center.Y - 20, npc.velocity.X, npc.velocity.Y, ModContent.ProjectileType<Projectiles.HookLeft>(), damage, 0f, Main.myPlayer, npc.whoAmI, 0f);
 				attackProgress = 120;
 			}
 			attackProgress--;
@@ -136,7 +133,7 @@ namespace WormRiderBoss.NPCs
 		private void WormWall() {
 			if (attackProgress == 0)
 			{
-				attackProgress = 4;
+				attackProgress = 16;
 				if (NPC.CountNPCS(510) < 12)
 				{
 
@@ -235,6 +232,7 @@ namespace WormRiderBoss.NPCs
 
 		public override void AI()
 		{
+			DoAttack(5);
 			//Targeting
 			npc.TargetClosest(true);
 			Player player = Main.player[npc.target];
@@ -262,7 +260,6 @@ namespace WormRiderBoss.NPCs
 			//npc.netUpdate = true;
 			//Attack
 			npc.timeLeft = NPC.activeTime;
-			DoAttack(5);
 		}
 
 		public override Boolean PreNPCLoot()
