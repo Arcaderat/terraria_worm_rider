@@ -153,6 +153,22 @@ namespace WormRiderBoss.NPCs
 			}
 		}
 
+		private void SummonCompanion(){
+			//TODO make stand still for a bit when it calls
+			//check attack progress has reset and there is no companion already here
+			if (attackProgress == 0 && NPC.CountNPCS(ModContent.NPCType<WormCompanion>()) == 0){
+				attackProgress = 10;
+				//spawn the NPC using SpawnOnPlayer so it's not consistent where it comes from
+				NPC.SpawnOnPlayer(Main.player[npc.target].whoAmI, ModContent.NPCType<WormCompanion>());
+				//NPC.NewNPC((int)npc.Center.X, (int) npc.Center.Y, ModContent.NPCType<WormCompanion>());
+			}
+
+			attackProgress--;
+			if (attackProgress < 0)
+			{
+				attackProgress = 0;
+			}
+		}
 		/*
 		private void DoAttack(int numAttacks)
 		{
@@ -211,7 +227,7 @@ namespace WormRiderBoss.NPCs
 		*/
 		private void DoAttack(int numAttacks)
 		{
-			int choice = Main.rand.Next(2);
+			int choice = Main.rand.Next(3);
 			switch (choice)
             {
 				case 0:
@@ -219,6 +235,9 @@ namespace WormRiderBoss.NPCs
 					break;
 				case 1:
 					WormWall();
+					break;
+				case 2:
+					SummonCompanion();
 					break;
 			}
 			if (attackProgress == 0)
