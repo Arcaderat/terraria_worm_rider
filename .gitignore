@@ -3,3 +3,5 @@
 obj/*
 vs/*
 .DS_Store
+obj/Debug/net46/WormRiderBoss.csproj.AssemblyReference.cache
+obj/Debug/net46/WormRiderBoss.GeneratedMSBuildEditorConfig.editorconfig
