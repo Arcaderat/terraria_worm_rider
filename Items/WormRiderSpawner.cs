@@ -2,6 +2,7 @@ using Terraria;
 using Terraria.ModLoader;
 using Terraria.ID;
 using WormRiderBoss.NPCs;
+using WormRiderBoss.Projectiles;
 
 namespace WormRiderBoss.Items
 {

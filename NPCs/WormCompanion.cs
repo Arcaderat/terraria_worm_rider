@@ -11,7 +11,7 @@ using WormRiderBoss.Projectiles;
 
 namespace WormRiderBoss.NPCs{
     public class WormCompanion : ModNPC{
-		private int attackProgress = 0;
+		private int attackProgress;
 		private bool doingSpitAttack = false;
 
 		private bool spawned = false;
@@ -27,7 +27,7 @@ namespace WormRiderBoss.NPCs{
 
 		public override void SetDefaults()
 		{
-			attackProgress = 0;
+			attackProgress = 500; //prevents exception being thrown when checking position before spawn
 			//Get defaults form dune splicer
             npc.CloneDefaults(NPCID.DuneSplicerHead);
 			aiType = NPCID.Worm;
@@ -39,7 +39,8 @@ namespace WormRiderBoss.NPCs{
             npc.lifeMax = 10000;
             npc.scale = 2f;
             npc.boss = true;
-			npc.damage = 0;
+			npc.damage = 60;
+
 
 		}
 
@@ -72,8 +73,7 @@ namespace WormRiderBoss.NPCs{
 					Main.npc[num22].ai[1] = (float)num18;
             	    //We can add more Main.npc[num22] items here to edit the body parts' stats
             	    Main.npc[num22].scale = 2;
-            	    //Main.npc[num22].damage = 70;
-					Main.npc[num22].damage = 0;
+            	    Main.npc[num22].damage = 50;
 					CopyInteractions(Main.npc[num22], npc);
 					Main.npc[num18].ai[0] = (float)num22;
 					NetMessage.SendData(23, -1, -1, null, num22, 0f, 0f, 0f, 0, 0, 0);
@@ -82,21 +82,17 @@ namespace WormRiderBoss.NPCs{
 				spawned = true;
 			}
 
-			//Find the nearest surface tile and add 20 to it
-			int x = WorldGen.genRand.Next(0, Main.maxTilesX);
-			//bool foundSurface = false;
-			int y = 1;
-			while (y < Main.worldSurface) {
-				if (WorldGen.SolidTile(x, y)) {
-					//foundSurface = true;
-					break;
-				}
-				y++;
-			}
 
 			//do the attack if above ground and the cooldown is done
-			if (attackProgress <= 0 && npc.position.Y > y){
-				DoAttack(0);
+			if (attackProgress <= 0){
+				try{
+					if (!WorldGen.SolidTile((int) npc.position.X, (int) npc.position.Y)){
+						DoAttack(0);
+					}
+				}catch{
+					base.AI();
+				}
+
 			}else{
 				//Use the base AI when not attacking
         		base.AI();
@@ -140,7 +136,7 @@ namespace WormRiderBoss.NPCs{
 			switch (choice)
            	{
 				case 0:
-					doingSpitAttack = true;
+					WormSpit();
 					attackProgress = 100;
 					break;
 			}
@@ -149,8 +145,7 @@ namespace WormRiderBoss.NPCs{
 
 		//TODO implement
 		private void WormSpit(){
-			Projectile.NewProjectile(npc.Center.X, npc.Center.Y + 10, npc.velocity.X, npc.velocity.Y, ModContent.ProjectileType<Projectiles.WormSpit>(), 40, 0f);
-
+			Projectile.NewProjectile(npc.Center.X, npc.Center.Y, (int)(npc.velocity.X * 1.1), (int)(npc.velocity.Y * 1.1), ProjectileID.DD2OgreSpit, 20, 0f);
 		}
         //Stolen from source needed to get body parts working with head
         public void CopyInteractions(NPC npc1, NPC npc2)
