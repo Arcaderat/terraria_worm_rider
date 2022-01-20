@@ -112,6 +112,7 @@ namespace WormRiderBoss.NPCs
 			frameNum = (frameNum + 1) % 60;
 		}
 
+//Worm Rider Attacks
 		private void Hookem()
 		{
 			if (attackProgress == 0)
@@ -153,6 +154,17 @@ namespace WormRiderBoss.NPCs
 			}
 		}
 
+		private void WormSpit(){
+			if (attackProgress == 0)
+			{
+				attackProgress = 50;
+				Projectile.NewProjectile(npc.Center.X, npc.Center.Y, 0, -10, ProjectileID.DD2BetsyFireball, 20, 20);
+			} 
+			attackProgress--;
+			if (attackProgress < 0){
+				attackProgress = 0;
+			}
+		}
 		private void SummonCompanion(){
 			//TODO make stand still for a bit when it calls
 			//check attack progress has reset and there is no companion already here
@@ -169,65 +181,10 @@ namespace WormRiderBoss.NPCs
 				attackProgress = 0;
 			}
 		}
-		/*
+		
 		private void DoAttack(int numAttacks)
 		{
-			if (attackTimer > 0f)
-			{
-				attackTimer -= 1f;
-				return;
-			}
-			if (attack < 0)
-			{
-				int totalWeight = 0;
-				for (int k = 0; k < numAttacks; k++)
-				{
-					if (attackWeights[k] < minAttackWeight)
-					{
-						attackWeights[k] = minAttackWeight;
-					}
-					totalWeight += attackWeights[k];
-				}
-				int choice = Main.rand.Next(totalWeight);
-				for (attack = 0; attack < numAttacks; attack++)
-				{
-					if (choice < attackWeights[attack])
-					{
-						break;
-					}
-					choice -= attackWeights[attack];
-				}
-				attackWeights[attack] -= 80;
-				npc.netUpdate = true;
-			}
-			switch (attack)
-			{
-				case 0:
-					SnakeAttack();
-					break;
-				case 1:
-					SnakeAttack();
-					break;
-				case 2:
-					SnakeAttack();
-					break;
-				case 3:
-					SnakeAttack();
-					break;
-				case 4:
-					SnakeAttack();
-					break;
-			}
-			if (attackProgress == 0)
-			{
-				attackTimer += 160f * timeMultiplier;
-				attack = -1;
-			}
-		}
-		*/
-		private void DoAttack(int numAttacks)
-		{
-			int choice = Main.rand.Next(3);
+			int choice = Main.rand.Next(numAttacks);
 			switch (choice)
             {
 				case 0:
@@ -239,6 +196,9 @@ namespace WormRiderBoss.NPCs
 				case 2:
 					SummonCompanion();
 					break;
+				case 3:
+					WormSpit();
+					break;
 			}
 			if (attackProgress == 0)
 			{
@@ -248,10 +208,11 @@ namespace WormRiderBoss.NPCs
 
 
 
-
+//Worm Rider AI
 		public override void AI()
 		{
-			DoAttack(5);
+			//Attack
+			DoAttack(4);
 			//Targeting
 			npc.TargetClosest(true);
 			Player player = Main.player[npc.target];
@@ -263,7 +224,7 @@ namespace WormRiderBoss.NPCs
 			//Ensures NPC Life is not greater than its max
 			if (npc.life >= npc.lifeMax)
 				npc.life = npc.lifeMax;
-			//Handles Despawning
+			//Handles Despawning ~ doesn't appear to work
 			if(npc.target < 0 || npc.target == 255 || player.dead || !player.active){
 				npc.TargetClosest(false);
 				if(npc.timeLeft > 20){
@@ -273,11 +234,10 @@ namespace WormRiderBoss.NPCs
 			}
 			//Movement
 			int distance = (int)Vector2.Distance(target, npc.Center);
-			MoveTowards(npc, target, (float)(distance > 300 ? 13f : 7f), 30f);
+			MoveTowards(npc, target, 13f, 30f);
 			npc.netUpdate = true;
-			Jump(npc, 10);
-			//npc.netUpdate = true;
-			//Attack
+			Jump(npc);
+			//Idk what this does
 			npc.timeLeft = NPC.activeTime;
 		}
 
@@ -287,10 +247,12 @@ namespace WormRiderBoss.NPCs
 			return true;
 		}
 
-		private void Jump(NPC npc, int velocity){
+//Worm Rider Movement Functions
+
+		private void Jump(NPC npc){
 			if(npc.velocity.Y == 0)
 			{
-			  npc.ai[0] = 8;
+			  npc.ai[0] = 1;
 			}
 			if(npc.ai[0] > 0)
 			{
@@ -310,7 +272,7 @@ namespace WormRiderBoss.NPCs
 			{
 				move *= speed / length;
 			}
-			npc.velocity = move;
+			npc.velocity.X = move.X;
 		}
 		private void MoveAway(NPC npc, Vector2 playerTarget, float speed, float turnResistance){
 			var move = -(playerTarget - npc.Center);
@@ -324,7 +286,7 @@ namespace WormRiderBoss.NPCs
 			{
 				move *= speed / length;
 			}
-			npc.velocity = move;
+			npc.velocity.X = move.X;
 		}
 	}
 }
