@@ -16,6 +16,7 @@ namespace WormRiderBoss.NPCs
 	public class WormRider : ModNPC
 	{
 		private int attackProgress;
+		private int summoningTimer;
 
 		private float attackTimer
 		{
@@ -168,11 +169,10 @@ namespace WormRiderBoss.NPCs
 		private void SummonCompanion(){
 			//TODO make stand still for a bit when it calls
 			//check attack progress has reset and there is no companion already here
-			if (attackProgress == 0 && NPC.CountNPCS(ModContent.NPCType<WormCompanion>()) == 0){
-				attackProgress = 10;
+			if (NPC.CountNPCS(ModContent.NPCType<WormCompanion>()) == 0){
+				attackProgress = 150;
 				//spawn the NPC using SpawnOnPlayer so it's not consistent where it comes from
 				NPC.SpawnOnPlayer(Main.player[npc.target].whoAmI, ModContent.NPCType<WormCompanion>());
-				//NPC.NewNPC((int)npc.Center.X, (int) npc.Center.Y, ModContent.NPCType<WormCompanion>());
 			}
 
 			attackProgress--;
@@ -185,6 +185,12 @@ namespace WormRiderBoss.NPCs
 		private void DoAttack(int numAttacks)
 		{
 			int choice = Main.rand.Next(numAttacks);
+			//if companion already summoned, choose a different attack
+			if (NPC.CountNPCS(ModContent.NPCType<WormCompanion>()) != 0){
+				while (choice == 2){
+					choice = Main.rand.Next(numAttacks);
+				}
+			}
 			switch (choice)
             {
 				case 0:
@@ -194,7 +200,10 @@ namespace WormRiderBoss.NPCs
 					WormWall();
 					break;
 				case 2:
-					SummonCompanion();
+					if(attackProgress == 0){
+						//set the summon timer that will summon when done
+						summoningTimer = 200;
+					}
 					break;
 				case 3:
 					WormSpit();
@@ -211,6 +220,15 @@ namespace WormRiderBoss.NPCs
 //Worm Rider AI
 		public override void AI()
 		{
+			//if we're summoning, do nothing
+			if (summoningTimer > 0){
+				if (summoningTimer == 1){
+					SummonCompanion();
+				}
+				npc.velocity = new Vector2(0f, 0f);
+				summoningTimer--;
+				return;
+			}
 			//Attack
 			DoAttack(4);
 			//Targeting
