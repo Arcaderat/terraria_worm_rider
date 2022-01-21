@@ -252,7 +252,7 @@ namespace WormRiderBoss.NPCs
 			}
 			//Movement
 			int distance = (int)Vector2.Distance(target, npc.Center);
-			MoveTowards(npc, target, 13f, 30f);
+			MoveTowards(npc, target, 7.5f, 30f);
 			npc.netUpdate = true;
 			Jump(npc);
 			//Idk what this does
