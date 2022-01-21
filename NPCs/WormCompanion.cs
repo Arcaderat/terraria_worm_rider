@@ -85,13 +85,7 @@ namespace WormRiderBoss.NPCs{
 
 			//do the attack if above ground and the cooldown is done
 			if (attackProgress <= 0){
-				try{
-					if (!WorldGen.SolidTile((int) npc.position.X, (int) npc.position.Y)){
-						DoAttack(0);
-					}
-				}catch{
-					base.AI();
-				}
+				DoAttack(0);
 
 			}else{
 				//Use the base AI when not attacking
