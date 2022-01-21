@@ -75,11 +75,10 @@ namespace WormRiderBoss.NPCs
 			Main.npcFrameCount[npc.type] = 4;
 		}
 		public override void SetDefaults() {
-			//TODO adjust default settings to balance the boss and also so they make sense for our specific boss
 			attackProgress = 0;
 			npc.aiStyle = 3;
 			npc.lifeMax = 40000;
-			npc.damage = 1;
+			npc.damage = 10;
 			npc.defense = 0;
 			npc.knockBackResist = 0f;
 			npc.width = 70;
@@ -167,7 +166,6 @@ namespace WormRiderBoss.NPCs
 			}
 		}
 		private void SummonCompanion(){
-			//TODO make stand still for a bit when it calls
 			//check attack progress has reset and there is no companion already here
 			if (NPC.CountNPCS(ModContent.NPCType<WormCompanion>()) == 0){
 				attackProgress = 150;
