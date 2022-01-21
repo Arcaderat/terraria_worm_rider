@@ -25,7 +25,7 @@ namespace WormRiderBoss.Projectiles
 			projectile.friendly = false; 
 			projectile.hostile = true; 
 			projectile.tileCollide = false; 
-			projectile.damage = 20;
+			projectile.damage = 50;
 			projectile.ranged = false;
 			projectile.aiStyle = 0;
 		}
