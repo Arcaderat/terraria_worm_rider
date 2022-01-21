@@ -165,6 +165,38 @@ namespace WormRiderBoss.NPCs
 				attackProgress = 0;
 			}
 		}
+
+		private void WormSpear()
+		{
+			if (attackProgress == 0)
+			{
+				attackProgress = 100;
+
+				Player player = Main.player[npc.target];
+				Vector2 target = npc.HasPlayerTarget ? player.Center : Main.npc[npc.target].Center;
+
+				float speed = 40f;
+				var move = target - npc.Center;
+				float length = move.Length();
+				if (length > speed)
+				{
+					move *= speed / length;
+				}
+				length = move.Length();
+				if (length > speed)
+				{
+					move *= speed / length;
+				}
+
+				Projectile.NewProjectile(npc.Center.X, npc.Center.Y, move.X, move.Y, ModContent.ProjectileType<Projectiles.WormSpear>(), 20, 2f, Main.myPlayer, npc.whoAmI, 0f);
+			}
+			attackProgress--;
+			if (attackProgress < 0)
+			{
+				attackProgress = 0;
+			}
+		}
+
 		private void SummonCompanion(){
 			//TODO make stand still for a bit when it calls
 			//check attack progress has reset and there is no companion already here
@@ -199,6 +231,9 @@ namespace WormRiderBoss.NPCs
 				case 3:
 					WormSpit();
 					break;
+				case 4:
+					WormSpear();
+					break;
 			}
 			if (attackProgress == 0)
 			{
@@ -212,7 +247,7 @@ namespace WormRiderBoss.NPCs
 		public override void AI()
 		{
 			//Attack
-			DoAttack(4);
+			DoAttack(5);
 			//Targeting
 			npc.TargetClosest(true);
 			Player player = Main.player[npc.target];
