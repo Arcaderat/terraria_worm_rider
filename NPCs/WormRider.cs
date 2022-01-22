@@ -277,6 +277,42 @@ namespace WormRiderBoss.NPCs
 
 		}
 
+		private void writeQTable(){
+			string path = @"./qtable.txt";
+			// Create a file to write to. ok to overwrite previous
+			StreamWriter sw = File.CreateText(path);
+            
+			foreach(int key in qTable.Keys){
+				foreach(int key2 in qTable[key].Keys){
+					if (key2 <= 1500){ //trim off far away keys, they don't really matter
+						for (int i = 0; i < qTable[key][key2].Length; i++){
+							for (int j = 0; j < qTable[key][key2][i].Length; j++){
+								//Write the direction, distance, own health, and player health values
+								sw.WriteLine(key + "," + key2 + "," + i + "," + j);
+								for (int k = 0; k < qTable[key][key2][i][j].Length; k++){
+										//Write the move and its q value
+										sw.WriteLine(k + "," + qTable[key][key2][i][j][k]);
+								}
+								//seperate each state with a new line
+								sw.WriteLine();
+							}
+						}
+					}
+				}
+			}
+		}
+
+		private void readQTable(){
+			string path = @"./qtabletest.txt";
+			StreamReader sr = File.OpenText(path);
+			string s;
+            while ((s = sr.ReadLine()) != null)
+            {
+                string[] state = s.Split(',');
+				
+            }
+		}
+
 		private float attackTimer
 		{
 			get => npc.ai[1];
@@ -334,6 +370,7 @@ namespace WormRiderBoss.NPCs
 			Main.npcFrameCount[npc.type] = 4;
 		}
 		public override void SetDefaults() {
+
 			attackProgress = 0;
 			npc.aiStyle = 3;
 			npc.lifeMax = 40000;
@@ -556,22 +593,23 @@ namespace WormRiderBoss.NPCs
 		public override Boolean PreNPCLoot()
 		{
 			mod.Logger.Info("it died");
-			foreach(int key in qTable.Keys){
-				foreach(int key2 in qTable[key].Keys){
-					if (key2 <= 1500){
-						for (int i = 0; i < qTable[key][key2].Length; i++){
-							for (int j = 0; j < qTable[key][key2][i].Length; j++){
-								mod.Logger.Info(key + " " + key2 + " " + i + " " + j);
-								for (int k = 0; k < qTable[key][key2][i][j].Length; k++){
-									if(qTable[key][key2][i][j][k] != 0){
-										mod.Logger.Info(k + " " +qTable[key][key2][i][j][k]);
-									}
-								}
-							}
-						}
-					}
-				}
-			}
+			writeQTable();
+			// foreach(int key in qTable.Keys){
+			// 	foreach(int key2 in qTable[key].Keys){
+			// 		if (key2 <= 1500){
+			// 			for (int i = 0; i < qTable[key][key2].Length; i++){
+			// 				for (int j = 0; j < qTable[key][key2][i].Length; j++){
+			// 					mod.Logger.Info(key + " " + key2 + " " + i + " " + j);
+			// 					for (int k = 0; k < qTable[key][key2][i][j].Length; k++){
+			// 						if(qTable[key][key2][i][j][k] != 0){
+			// 							mod.Logger.Info(k + " " +qTable[key][key2][i][j][k]);
+			// 						}
+			// 					}
+			// 				}
+			// 			}
+			// 		}
+			// 	}
+			// }
 			return true;
 		}
 
