@@ -15,6 +15,8 @@ namespace WormRiderBoss.NPCs
 	[AutoloadBossHead]
 	public class WormRider : ModNPC
 	{
+		//just checks if we've done one action yet (can't update qTable if not)
+		private bool hasActed = false;
 		private int attackProgress;
 		private int summoningTimer;
 
@@ -26,12 +28,11 @@ namespace WormRiderBoss.NPCs
 		private int lastDistance;
 
 		//Our qTable for learning
-		private Dictionary<int, Dictionary<int, double[][][]>> qTable;
+		private Dictionary<int, Dictionary<int, double[][][]>> qTable = new Dictionary<int, Dictionary<int, double[][][]>>();
 
 
 		//returns int signifying which move/attack it should do
 		private int getAttack(Player target){
-			//Otherwise, find the best option
 			Vector2 playerPos = target.position;
 			Vector2 selfPos = npc.position;
 
@@ -101,9 +102,9 @@ namespace WormRiderBoss.NPCs
 
 			lastDistance = roundedDistance;
 
-			double ownHealthPercent = npc.life / npc.lifeMax;
+			double ownHealthPercent = (double) npc.life / (double) npc.lifeMax;
 			//statLifeMax2 accounts for item bonuses
-			double playerHealthPercent = target.statLife / target.statLifeMax2;
+			double playerHealthPercent = (double) target.statLife / (double) target.statLifeMax2;
 			int ownHealth = -1;
 			int playerHealth = -1;
 
@@ -151,14 +152,23 @@ namespace WormRiderBoss.NPCs
 
 			//Check for epsilon greedy random action
 			double epsilon = 0.1;
-			int action = -1;
-			if (Main.rand.NextDouble() < epsilon){
-				action = Main.rand.Next(0, 10);
+			int action = 0;
+			//Makes sure we aren't considering spawning another companion when we aren't allowed
+			int numActions = -1;
+			if (NPC.CountNPCS(ModContent.NPCType<WormCompanion>()) != 0){
+				numActions = 8;
 			}else{
+				numActions = 10;
+			}
+
+			if (Main.rand.NextDouble() < epsilon){
+				action = Main.rand.Next(0, numActions);
+			}else{
+				
 				//find the max value's index, or what action the qTable says is best
 				double? maxVal = null;
 				action = -1;
-				for (int i = 0; i < expectedRewards.Length; i++){
+				for (int i = 0; i < numActions; i++){
   					double thisNum = expectedRewards[i];
   					if (!maxVal.HasValue || thisNum > maxVal.Value){
     					maxVal = thisNum;
@@ -169,6 +179,159 @@ namespace WormRiderBoss.NPCs
 
 			lastAction = action;
 			return action;
+
+		}
+
+		//calculates our reward and updates QTable
+		private void updateQTable(Player target){
+			//how much we learn from the current action
+			double alpha = .7;
+			//how much to discount the future value estimate
+			double gamma = .99;
+			
+			//TODO balance after attacks have been balanced
+			int playerHealthWeight = 2;
+			int ownHealthWeight = 1;
+			int companionBonus = 5;
+			int noChangePenalty = -1;
+
+			double changePlayerHealth = (double)(target.statLife - lastPlayerHealth) / (double)target.statLifeMax2;
+			double changeOwnHealth = (double)(npc.life - lastOwnHealth) / (double)npc.lifeMax;
+
+			double reward = (-playerHealthWeight * changePlayerHealth) + (ownHealthWeight * changeOwnHealth) + companionBonus;
+
+			//slightly punish actions that involve no player interaction
+			if (changeOwnHealth == 0 && changePlayerHealth == 0){
+				reward += noChangePenalty;
+			}
+
+			//calculate our current state
+			Vector2 playerPos = target.position;
+			Vector2 selfPos = npc.position;
+
+			Vector2 betweenVec = playerPos - selfPos;
+
+			//Calculate the directon of the between vector
+			Double angleToPlayer = Math.Atan2(betweenVec.Y, betweenVec.X);
+			
+			//Which of our "cardinal directions" we're using
+			int angleDiv = -1;
+
+			//find the correct angleDiv for the true angle
+			if(-Math.PI <= angleToPlayer && angleToPlayer < (-11 * Math.PI)/12){
+				angleDiv = 180;
+			}else if((-11 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (-10 * Math.PI)/12){
+				angleDiv = 195;
+			}else if((-10 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (-9 * Math.PI)/12){
+				angleDiv = 210;
+			}else if((-9 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (-8 * Math.PI)/12){
+				angleDiv = 225;
+			}else if((-8 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (-7 * Math.PI)/12){
+				angleDiv = 240;
+			}else if((-7 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (-6 * Math.PI)/12){
+				angleDiv = 255;
+			}else if((-6 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (-5 * Math.PI)/12){
+				angleDiv = 270;
+			}else if((-5 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (-4 * Math.PI)/12){
+				angleDiv = 285;
+			}else if((-4 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (-3 * Math.PI)/12){
+				angleDiv = 300;
+			}else if((-3 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (-2 * Math.PI)/12){
+				angleDiv = 315;
+			}else if((-2 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (-1 * Math.PI)/12){
+				angleDiv = 330;
+			}else if((-1 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (0 * Math.PI)/12){
+				angleDiv = 345;
+			}else if((0 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (1 * Math.PI)/12){
+				angleDiv = 0;
+			}else if((1* Math.PI)/12 <= angleToPlayer && angleToPlayer < (2 * Math.PI)/12){
+				angleDiv = 15;
+			}else if((2 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (3 * Math.PI)/12){
+				angleDiv = 30;
+			}else if((3 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (4 * Math.PI)/12){
+				angleDiv = 45;
+			}else if((4 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (5 * Math.PI)/12){
+				angleDiv = 60;
+			}else if((5 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (6 * Math.PI)/12){
+				angleDiv = 75;
+			}else if((6 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (7 * Math.PI)/12){
+				angleDiv = 90;
+			}else if((7 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (8 * Math.PI)/12){
+				angleDiv = 105;
+			}else if((8 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (9 * Math.PI)/12){
+				angleDiv = 120;
+			}else if((9 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (10 * Math.PI)/12){
+				angleDiv = 135;
+			}else if((10 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (11 * Math.PI)/12){
+				angleDiv = 150;
+			}else if((1 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (12 * Math.PI)/12){
+				angleDiv = 165;
+			}
+
+			double exactDistance = Math.Sqrt((betweenVec.X * betweenVec.X) * (betweenVec.Y * betweenVec.Y));
+			int roundedDistance = (int) Math.Round(exactDistance / 5) * 5;
+
+			double ownHealthPercent = (double)npc.life / (double)npc.lifeMax;
+			//statLifeMax2 accounts for item bonuses
+			double playerHealthPercent = (double)target.statLife / (double)target.statLifeMax2;
+			int ownHealth = -1;
+			int playerHealth = -1;
+
+			//calculate indices for own and player healths
+			if(0 < ownHealthPercent && ownHealthPercent<= .25){
+				ownHealth = 0;
+			}else if(.25 < ownHealthPercent && ownHealthPercent<= .5){
+				ownHealth = 1;
+			}else if(.5 < ownHealthPercent && ownHealthPercent<= .75){
+				ownHealth = 2;
+			}else if(.75 < ownHealthPercent && ownHealthPercent<= 1){
+				ownHealth = 3;
+			}
+
+			if(0 < playerHealthPercent && playerHealthPercent<= .25){
+				playerHealth = 0;
+			}else if(.25 < playerHealthPercent && playerHealthPercent<= .5){
+				playerHealth = 1;
+			}else if(.5 < playerHealthPercent && playerHealthPercent<= .75){
+				playerHealth = 2;
+			}else if(.75 < playerHealthPercent && playerHealthPercent<= 1){
+				playerHealth = 3;
+			}
+
+			//in the current state, what's our best next option
+			double? maxNextReward = null;
+			//Makes sure we aren't considering spawning another companion when we aren't allowed
+			int numActions = -1;
+			if (NPC.CountNPCS(ModContent.NPCType<WormCompanion>()) != 0){
+				numActions = 8;
+			}else{
+				numActions = 10;
+			}
+
+			//Make empty qTable values if this is a new state
+			if (! qTable.ContainsKey(angleDiv)){
+				qTable.Add(angleDiv, new Dictionary<int, double[][][]>());
+			}
+			if (! qTable[angleDiv].ContainsKey(roundedDistance)){
+				//C# jagged arrays are dumb
+				qTable[angleDiv].Add(roundedDistance, new double[4][][]);
+				for (int i = 0; i < 4; i++){
+					qTable[angleDiv][roundedDistance][i] = new double[4][];
+					for (int j = 0; j < 4; j++){
+						qTable[angleDiv][roundedDistance][i][j] = new double[10];
+					}
+				}
+			}
+
+			double[] possibleRewards = qTable[angleDiv][roundedDistance][ownHealth][playerHealth];
+			for (int i = 0; i < numActions; i++){
+				if (!maxNextReward.HasValue || possibleRewards[i] > maxNextReward){
+					maxNextReward = possibleRewards[i];
+				} 
+			}
+			
+			//finally update the table
+			qTable[lastAngleDiv][lastDistance][lastOwnHealth][lastPlayerHealth][lastAction] = ((1- alpha) * qTable[lastAngleDiv][lastDistance][lastOwnHealth][lastPlayerHealth][lastAction]) + (alpha * (reward + (gamma * (double)maxNextReward)));
 
 		}
 
@@ -328,32 +491,48 @@ namespace WormRiderBoss.NPCs
 			}
 		}
 		
-		private void DoAttack(int numAttacks)
+		private void DoAttack(int numAttacks, Player player)
 		{
-			int choice = Main.rand.Next(numAttacks);
+			int choice = getAttack(player);
 			//if companion already summoned, choose a different attack
-			if (NPC.CountNPCS(ModContent.NPCType<WormCompanion>()) != 0){
-				while (choice == 2){
-					choice = Main.rand.Next(numAttacks);
-				}
-			}
+			// if (NPC.CountNPCS(ModContent.NPCType<WormCompanion>()) != 0){
+			// 	while (choice == 2){
+			// 		choice = Main.rand.Next(numAttacks);
+			// 	}
+			// }
 			switch (choice)
             {
 				case 0:
 					Hookem();
 					break;
 				case 1:
-					WormWall();
+					Hookem();
 					break;
 				case 2:
+					WormWall();
+					break;
+				case 3:
+					WormWall();
+					break;
+				case 4:
+					WormSpit();
+					break;
+				case 5:
+					WormSpit();
+					break;
+				case 6:
+					WormSpear();
+					break;
+				case 7:
+					WormSpear();
+					break;
+				case 8:
 					//set the summon timer that will summon when done
 					summoningTimer = 200;
 					break;
-				case 3:
-					WormSpit();
-					break;
-				case 4:
-					WormSpear();
+				case 9:
+					//set the summon timer that will summon when done
+					summoningTimer = 200;
 					break;
 			}
 			if (attackProgress == 0)
@@ -376,19 +555,27 @@ namespace WormRiderBoss.NPCs
 				summoningTimer--;
 				return;
 			}
+
+			//Targeting
+			npc.TargetClosest(true);
+			Player player = Main.player[npc.target];
+			Vector2 target = npc.HasPlayerTarget ? player.Center : Main.npc[npc.target].Center;
+
 			//Attack after reset
 			if (attackProgress <= 0){
-				DoAttack(5);
+				if (hasActed){
+					//update our qTable
+					updateQTable(player);
+				}
+				//queue up a new attack
+				DoAttack(5, player);
+				hasActed = true;
 			}else{
 				attackProgress--;
 				if (attackProgress < 0){
 					attackProgress = 0;
 				}
 			}
-			//Targeting
-			npc.TargetClosest(true);
-			Player player = Main.player[npc.target];
-			Vector2 target = npc.HasPlayerTarget ? player.Center : Main.npc[npc.target].Center;
 			//NPC Rotation
 			npc.rotation = 0.0f;
 			npc.netAlways = true;
@@ -406,7 +593,18 @@ namespace WormRiderBoss.NPCs
 			}
 			//Movement
 			int distance = (int)Vector2.Distance(target, npc.Center);
-			MoveTowards(npc, target, 5f, 30f);
+			int maxDistance = 300;
+			
+			//switch our action to move towards if we try to move away and can't go further
+			if (distance > maxDistance && lastAction % 2 == 1){
+				lastAction--;
+			}
+			//based on the action we picked when we attacked, we move as well; odd -> move away, even -> move towards
+			if (lastAction % 2 == 1){
+				MoveAway(npc, target, 4f, 30f);
+			}else{
+				MoveTowards(npc, target, 5f, 30f);
+			}
 			npc.netUpdate = true;
 			Jump(npc);
 			//Idk what this does
@@ -416,6 +614,17 @@ namespace WormRiderBoss.NPCs
 		public override Boolean PreNPCLoot()
 		{
 			mod.Logger.Info("it died");
+			foreach(int key in qTable.Keys){
+				foreach(int key2 in qTable[key].Keys){
+					for (int i = 0; i < qTable[key][key2].Length; i++){
+						for (int j = 0; j < qTable[key][key2][i].Length; j++){
+							for (int k = 0; k < qTable[key][key2][i][j].Length; k++){
+								mod.Logger.Info(qTable[key][key2][i][j][k]);
+							}
+						}
+					}
+				}
+			}
 			return true;
 		}
 
