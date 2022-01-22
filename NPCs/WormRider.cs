@@ -562,7 +562,6 @@ namespace WormRiderBoss.NPCs
 			//load the QTable if we haven't yet
 			if (!loadedQTable){
 				readQTable();
-				logQTable();
 				loadedQTable = true;
 			}
 			//if we're summoning, do nothing
