@@ -114,7 +114,7 @@ namespace WormRiderBoss.NPCs
 			double[] expectedRewards = qTable[angleDiv][roundedDistance][ownHealth][playerHealth];
 
 			//Check for epsilon greedy random action
-			double epsilon = 0.1;
+			double epsilon = 0.3;
 			int action = -1;
 			//Makes sure we aren't considering spawning another companion when we aren't allowed
 			int numActions = -1;
@@ -548,12 +548,14 @@ namespace WormRiderBoss.NPCs
 			mod.Logger.Info("it died");
 			foreach(int key in qTable.Keys){
 				foreach(int key2 in qTable[key].Keys){
-					for (int i = 0; i < qTable[key][key2].Length; i++){
-						for (int j = 0; j < qTable[key][key2][i].Length; j++){
-							mod.Logger.Info(key + " " + key2 + " " + i + " " + j);
-							for (int k = 0; k < qTable[key][key2][i][j].Length; k++){
-								if(qTable[key][key2][i][j][k] != 0){
-									mod.Logger.Info(k + " " +qTable[key][key2][i][j][k]);
+					if (key2 <= 1500){
+						for (int i = 0; i < qTable[key][key2].Length; i++){
+							for (int j = 0; j < qTable[key][key2][i].Length; j++){
+								mod.Logger.Info(key + " " + key2 + " " + i + " " + j);
+								for (int k = 0; k < qTable[key][key2][i][j].Length; k++){
+									if(qTable[key][key2][i][j][k] != 0){
+										mod.Logger.Info(k + " " +qTable[key][key2][i][j][k]);
+									}
 								}
 							}
 						}
