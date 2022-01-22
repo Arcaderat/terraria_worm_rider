@@ -97,7 +97,7 @@ namespace WormRiderBoss.NPCs
 
 			lastAngleDiv = angleDiv;
 
-			double exactDistance = Math.Sqrt((betweenVec.X * betweenVec.X) * (betweenVec.Y * betweenVec.Y));
+			double exactDistance = Math.Sqrt((betweenVec.X * betweenVec.X) + (betweenVec.Y * betweenVec.Y));
 			int roundedDistance = (int) Math.Round(exactDistance / 5) * 5;
 
 			lastDistance = roundedDistance;
@@ -152,7 +152,7 @@ namespace WormRiderBoss.NPCs
 
 			//Check for epsilon greedy random action
 			double epsilon = 0.1;
-			int action = 0;
+			int action = -1;
 			//Makes sure we aren't considering spawning another companion when we aren't allowed
 			int numActions = -1;
 			if (NPC.CountNPCS(ModContent.NPCType<WormCompanion>()) != 0){
@@ -167,14 +167,20 @@ namespace WormRiderBoss.NPCs
 				
 				//find the max value's index, or what action the qTable says is best
 				double? maxVal = null;
-				action = -1;
+				List<int> bestActions = new List<int>(); 
 				for (int i = 0; i < numActions; i++){
   					double thisNum = expectedRewards[i];
-  					if (!maxVal.HasValue || thisNum > maxVal.Value){
-    					maxVal = thisNum;
-    					action = i;
+  					if (!maxVal.HasValue || thisNum >= maxVal.Value){
+    					if (maxVal.HasValue && thisNum == maxVal.Value){
+							bestActions.Add(i);
+						}else{
+							maxVal = thisNum;
+    						bestActions.Clear();
+							bestActions.Add(i);
+						}
   					}
 				}
+				action = bestActions[Main.rand.Next(0, bestActions.Count)];
 			}
 
 			lastAction = action;
@@ -618,8 +624,11 @@ namespace WormRiderBoss.NPCs
 				foreach(int key2 in qTable[key].Keys){
 					for (int i = 0; i < qTable[key][key2].Length; i++){
 						for (int j = 0; j < qTable[key][key2][i].Length; j++){
+							mod.Logger.Info(key + " " + key2 + " " + i + " " + j);
 							for (int k = 0; k < qTable[key][key2][i][j].Length; k++){
-								mod.Logger.Info(qTable[key][key2][i][j][k]);
+								if(qTable[key][key2][i][j][k] != 0){
+									mod.Logger.Info(k + " " +qTable[key][key2][i][j][k]);
+								}
 							}
 						}
 					}
