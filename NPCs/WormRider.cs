@@ -44,57 +44,6 @@ namespace WormRiderBoss.NPCs
 			//Which of our "cardinal directions" we're using
 			int angleDiv = -1;
 
-			//find the correct angleDiv for the true angle
-			// if(-Math.PI <= angleToPlayer && angleToPlayer < (-11 * Math.PI)/12){
-			// 	angleDiv = 180;
-			// }else if((-11 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (-10 * Math.PI)/12){
-			// 	angleDiv = 195;
-			// }else if((-10 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (-9 * Math.PI)/12){
-			// 	angleDiv = 210;
-			// }else if((-9 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (-8 * Math.PI)/12){
-			// 	angleDiv = 225;
-			// }else if((-8 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (-7 * Math.PI)/12){
-			// 	angleDiv = 240;
-			// }else if((-7 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (-6 * Math.PI)/12){
-			// 	angleDiv = 255;
-			// }else if((-6 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (-5 * Math.PI)/12){
-			// 	angleDiv = 270;
-			// }else if((-5 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (-4 * Math.PI)/12){
-			// 	angleDiv = 285;
-			// }else if((-4 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (-3 * Math.PI)/12){
-			// 	angleDiv = 300;
-			// }else if((-3 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (-2 * Math.PI)/12){
-			// 	angleDiv = 315;
-			// }else if((-2 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (-1 * Math.PI)/12){
-			// 	angleDiv = 330;
-			// }else if((-1 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (0 * Math.PI)/12){
-			// 	angleDiv = 345;
-			// }else if((0 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (1 * Math.PI)/12){
-			// 	angleDiv = 0;
-			// }else if((1* Math.PI)/12 <= angleToPlayer && angleToPlayer < (2 * Math.PI)/12){
-			// 	angleDiv = 15;
-			// }else if((2 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (3 * Math.PI)/12){
-			// 	angleDiv = 30;
-			// }else if((3 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (4 * Math.PI)/12){
-			// 	angleDiv = 45;
-			// }else if((4 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (5 * Math.PI)/12){
-			// 	angleDiv = 60;
-			// }else if((5 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (6 * Math.PI)/12){
-			// 	angleDiv = 75;
-			// }else if((6 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (7 * Math.PI)/12){
-			// 	angleDiv = 90;
-			// }else if((7 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (8 * Math.PI)/12){
-			// 	angleDiv = 105;
-			// }else if((8 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (9 * Math.PI)/12){
-			// 	angleDiv = 120;
-			// }else if((9 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (10 * Math.PI)/12){
-			// 	angleDiv = 135;
-			// }else if((10 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (11 * Math.PI)/12){
-			// 	angleDiv = 150;
-			// }else if((1 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (12 * Math.PI)/12){
-			// 	angleDiv = 165;
-			// }
-
 			if(-Math.PI <= angleToPlayer && angleToPlayer < (-8 * Math.PI)/12){
 				angleDiv = 180;
 			}else if((-8 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (-4 * Math.PI)/12){
@@ -236,57 +185,6 @@ namespace WormRiderBoss.NPCs
 			
 			//Which of our "cardinal directions" we're using
 			int angleDiv = -1;
-
-			//find the correct angleDiv for the true angle
-			// if(-Math.PI <= angleToPlayer && angleToPlayer < (-11 * Math.PI)/12){
-			// 	angleDiv = 180;
-			// }else if((-11 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (-10 * Math.PI)/12){
-			// 	angleDiv = 195;
-			// }else if((-10 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (-9 * Math.PI)/12){
-			// 	angleDiv = 210;
-			// }else if((-9 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (-8 * Math.PI)/12){
-			// 	angleDiv = 225;
-			// }else if((-8 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (-7 * Math.PI)/12){
-			// 	angleDiv = 240;
-			// }else if((-7 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (-6 * Math.PI)/12){
-			// 	angleDiv = 255;
-			// }else if((-6 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (-5 * Math.PI)/12){
-			// 	angleDiv = 270;
-			// }else if((-5 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (-4 * Math.PI)/12){
-			// 	angleDiv = 285;
-			// }else if((-4 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (-3 * Math.PI)/12){
-			// 	angleDiv = 300;
-			// }else if((-3 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (-2 * Math.PI)/12){
-			// 	angleDiv = 315;
-			// }else if((-2 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (-1 * Math.PI)/12){
-			// 	angleDiv = 330;
-			// }else if((-1 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (0 * Math.PI)/12){
-			// 	angleDiv = 345;
-			// }else if((0 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (1 * Math.PI)/12){
-			// 	angleDiv = 0;
-			// }else if((1* Math.PI)/12 <= angleToPlayer && angleToPlayer < (2 * Math.PI)/12){
-			// 	angleDiv = 15;
-			// }else if((2 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (3 * Math.PI)/12){
-			// 	angleDiv = 30;
-			// }else if((3 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (4 * Math.PI)/12){
-			// 	angleDiv = 45;
-			// }else if((4 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (5 * Math.PI)/12){
-			// 	angleDiv = 60;
-			// }else if((5 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (6 * Math.PI)/12){
-			// 	angleDiv = 75;
-			// }else if((6 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (7 * Math.PI)/12){
-			// 	angleDiv = 90;
-			// }else if((7 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (8 * Math.PI)/12){
-			// 	angleDiv = 105;
-			// }else if((8 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (9 * Math.PI)/12){
-			// 	angleDiv = 120;
-			// }else if((9 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (10 * Math.PI)/12){
-			// 	angleDiv = 135;
-			// }else if((10 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (11 * Math.PI)/12){
-			// 	angleDiv = 150;
-			// }else if((1 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (12 * Math.PI)/12){
-			// 	angleDiv = 165;
-			// }
 			
 			if(-Math.PI <= angleToPlayer && angleToPlayer < (-8 * Math.PI)/12){
 				angleDiv = 180;
