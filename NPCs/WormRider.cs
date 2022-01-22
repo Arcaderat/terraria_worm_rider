@@ -200,7 +200,7 @@ namespace WormRiderBoss.NPCs
 				angleDiv = 120;
 			}
 
-			double exactDistance = Math.Sqrt((betweenVec.X * betweenVec.X) * (betweenVec.Y * betweenVec.Y));
+			double exactDistance = Math.Sqrt((betweenVec.X * betweenVec.X) + (betweenVec.Y * betweenVec.Y));
 			int roundedDistance = (int) Math.Round(exactDistance / 25) * 25;
 
 			double ownHealthPercent = (double)npc.life / (double)npc.lifeMax;
