@@ -10,13 +10,167 @@ using Terraria.Localization;
 using WormRiderBoss.Projectiles;
 
 namespace WormRiderBoss.NPCs
-{
+{	
 	//loads the head icon for the minimap
 	[AutoloadBossHead]
 	public class WormRider : ModNPC
 	{
 		private int attackProgress;
 		private int summoningTimer;
+
+		//The last action we took and the player's and own health at the time
+		private int lastAction;
+		private int lastOwnHealth;
+		private int lastPlayerHealth;
+		private int lastAngleDiv;
+		private int lastDistance;
+
+		//Our qTable for learning
+		private Dictionary<int, Dictionary<int, double[][][]>> qTable;
+
+
+		//returns int signifying which move/attack it should do
+		private int getAttack(Player target){
+			//Otherwise, find the best option
+			Vector2 playerPos = target.position;
+			Vector2 selfPos = npc.position;
+
+			Vector2 betweenVec = playerPos - selfPos;
+
+			//Calculate the directon of the between vector
+			Double angleToPlayer = Math.Atan2(betweenVec.Y, betweenVec.X);
+			
+			//Which of our "cardinal directions" we're using
+			int angleDiv = -1;
+
+			//find the correct angleDiv for the true angle
+			if(-Math.PI <= angleToPlayer && angleToPlayer < (-11 * Math.PI)/12){
+				angleDiv = 180;
+			}else if((-11 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (-10 * Math.PI)/12){
+				angleDiv = 195;
+			}else if((-10 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (-9 * Math.PI)/12){
+				angleDiv = 210;
+			}else if((-9 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (-8 * Math.PI)/12){
+				angleDiv = 225;
+			}else if((-8 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (-7 * Math.PI)/12){
+				angleDiv = 240;
+			}else if((-7 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (-6 * Math.PI)/12){
+				angleDiv = 255;
+			}else if((-6 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (-5 * Math.PI)/12){
+				angleDiv = 270;
+			}else if((-5 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (-4 * Math.PI)/12){
+				angleDiv = 285;
+			}else if((-4 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (-3 * Math.PI)/12){
+				angleDiv = 300;
+			}else if((-3 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (-2 * Math.PI)/12){
+				angleDiv = 315;
+			}else if((-2 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (-1 * Math.PI)/12){
+				angleDiv = 330;
+			}else if((-1 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (0 * Math.PI)/12){
+				angleDiv = 345;
+			}else if((0 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (1 * Math.PI)/12){
+				angleDiv = 0;
+			}else if((1* Math.PI)/12 <= angleToPlayer && angleToPlayer < (2 * Math.PI)/12){
+				angleDiv = 15;
+			}else if((2 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (3 * Math.PI)/12){
+				angleDiv = 30;
+			}else if((3 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (4 * Math.PI)/12){
+				angleDiv = 45;
+			}else if((4 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (5 * Math.PI)/12){
+				angleDiv = 60;
+			}else if((5 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (6 * Math.PI)/12){
+				angleDiv = 75;
+			}else if((6 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (7 * Math.PI)/12){
+				angleDiv = 90;
+			}else if((7 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (8 * Math.PI)/12){
+				angleDiv = 105;
+			}else if((8 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (9 * Math.PI)/12){
+				angleDiv = 120;
+			}else if((9 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (10 * Math.PI)/12){
+				angleDiv = 135;
+			}else if((10 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (11 * Math.PI)/12){
+				angleDiv = 150;
+			}else if((1 * Math.PI)/12 <= angleToPlayer && angleToPlayer < (12 * Math.PI)/12){
+				angleDiv = 165;
+			}
+
+			lastAngleDiv = angleDiv;
+
+			double exactDistance = Math.Sqrt((betweenVec.X * betweenVec.X) * (betweenVec.Y * betweenVec.Y));
+			int roundedDistance = (int) Math.Round(exactDistance / 5) * 5;
+
+			lastDistance = roundedDistance;
+
+			double ownHealthPercent = npc.life / npc.lifeMax;
+			//statLifeMax2 accounts for item bonuses
+			double playerHealthPercent = target.statLife / target.statLifeMax2;
+			int ownHealth = -1;
+			int playerHealth = -1;
+
+			//calculate indices for own and player healths
+			if(0 < ownHealthPercent && ownHealthPercent<= .25){
+				ownHealth = 0;
+			}else if(.25 < ownHealthPercent && ownHealthPercent<= .5){
+				ownHealth = 1;
+			}else if(.5 < ownHealthPercent && ownHealthPercent<= .75){
+				ownHealth = 2;
+			}else if(.75 < ownHealthPercent && ownHealthPercent<= 1){
+				ownHealth = 3;
+			}
+
+			if(0 < playerHealthPercent && playerHealthPercent<= .25){
+				playerHealth = 0;
+			}else if(.25 < playerHealthPercent && playerHealthPercent<= .5){
+				playerHealth = 1;
+			}else if(.5 < playerHealthPercent && playerHealthPercent<= .75){
+				playerHealth = 2;
+			}else if(.75 < playerHealthPercent && playerHealthPercent<= 1){
+				playerHealth = 3;
+			}
+			
+			lastOwnHealth = ownHealth;
+			lastPlayerHealth = playerHealth;
+
+			//Make empty qTable values if this is a new state
+			if (! qTable.ContainsKey(angleDiv)){
+				qTable.Add(angleDiv, new Dictionary<int, double[][][]>());
+			}
+			if (! qTable[angleDiv].ContainsKey(roundedDistance)){
+				//C# jagged arrays are dumb
+				qTable[angleDiv].Add(roundedDistance, new double[4][][]);
+				for (int i = 0; i < 4; i++){
+					qTable[angleDiv][roundedDistance][i] = new double[4][];
+					for (int j = 0; j < 4; j++){
+						qTable[angleDiv][roundedDistance][i][j] = new double[10];
+					}
+				}
+			}
+
+			//The array of expected rewards for a specific state
+			double[] expectedRewards = qTable[angleDiv][roundedDistance][ownHealth][playerHealth];
+
+			//Check for epsilon greedy random action
+			double epsilon = 0.1;
+			int action = -1;
+			if (Main.rand.NextDouble() < epsilon){
+				action = Main.rand.Next(0, 10);
+			}else{
+				//find the max value's index, or what action the qTable says is best
+				double? maxVal = null;
+				action = -1;
+				for (int i = 0; i < expectedRewards.Length; i++){
+  					double thisNum = expectedRewards[i];
+  					if (!maxVal.HasValue || thisNum > maxVal.Value){
+    					maxVal = thisNum;
+    					action = i;
+  					}
+				}
+			}
+
+			lastAction = action;
+			return action;
+
+		}
 
 		private float attackTimer
 		{
@@ -115,86 +269,54 @@ namespace WormRiderBoss.NPCs
 //Worm Rider Attacks
 		private void Hookem()
 		{
-			if (attackProgress == 0)
-			{
-				attackProgress = 10;
-				//int damage = Main.expertMode ? 60 : 80;
-				int damage = 10;
-				Projectile.NewProjectile(npc.Center.X + 70, npc.Center.Y - 20, npc.velocity.X, npc.velocity.Y, ModContent.ProjectileType<Projectiles.HookRight>(), damage, 0f, Main.myPlayer, npc.whoAmI, 0f);
-				Projectile.NewProjectile(npc.Center.X - 80, npc.Center.Y - 20, npc.velocity.X, npc.velocity.Y, ModContent.ProjectileType<Projectiles.HookLeft>(), damage, 0f, Main.myPlayer, npc.whoAmI, 0f);
-				attackProgress = 120;
-			}
-			attackProgress--;
-			if (attackProgress < 0)
-			{
-				attackProgress = 0;
-			}
+			attackProgress = 10;
+			//int damage = Main.expertMode ? 60 : 80;
+			int damage = 10;
+			Projectile.NewProjectile(npc.Center.X + 70, npc.Center.Y - 20, npc.velocity.X, npc.velocity.Y, ModContent.ProjectileType<Projectiles.HookRight>(), damage, 0f, Main.myPlayer, npc.whoAmI, 0f);
+			Projectile.NewProjectile(npc.Center.X - 80, npc.Center.Y - 20, npc.velocity.X, npc.velocity.Y, ModContent.ProjectileType<Projectiles.HookLeft>(), damage, 0f, Main.myPlayer, npc.whoAmI, 0f);
+			attackProgress = 120;
 		}
 
 		private void WormWall() {
-			if (attackProgress == 0)
+			attackProgress = 16;
+			if (NPC.CountNPCS(510) < 12)
 			{
-				attackProgress = 16;
-				if (NPC.CountNPCS(510) < 12)
-				{
-
-					NPC.NewNPC((int)npc.Center.X + 300, (int)Main.player[npc.target].Center.Y - 500, ModContent.NPCType<SkyWorm>());
-					NPC.NewNPC((int)npc.Center.X - 300, (int)Main.player[npc.target].Center.Y - 500, ModContent.NPCType<SkyWorm>());
-					NPC.NewNPC((int)npc.Center.X + 600, (int)Main.player[npc.target].Center.Y - 500, ModContent.NPCType<SkyWorm>());
-					NPC.NewNPC((int)npc.Center.X - 600, (int)Main.player[npc.target].Center.Y - 500, ModContent.NPCType<SkyWorm>());
-					NPC.NewNPC((int)npc.Center.X + 900, (int)Main.player[npc.target].Center.Y - 500, ModContent.NPCType<SkyWorm>());
-					NPC.NewNPC((int)npc.Center.X - 900, (int)Main.player[npc.target].Center.Y - 500, ModContent.NPCType<SkyWorm>());
-
-				}
-			}
-			attackProgress--;
-			if (attackProgress < 0)
-			{
-				attackProgress = 0;
+				NPC.NewNPC((int)npc.Center.X + 300, (int)Main.player[npc.target].Center.Y - 500, ModContent.NPCType<SkyWorm>());
+				NPC.NewNPC((int)npc.Center.X - 300, (int)Main.player[npc.target].Center.Y - 500, ModContent.NPCType<SkyWorm>());
+				NPC.NewNPC((int)npc.Center.X + 600, (int)Main.player[npc.target].Center.Y - 500, ModContent.NPCType<SkyWorm>());
+				NPC.NewNPC((int)npc.Center.X - 600, (int)Main.player[npc.target].Center.Y - 500, ModContent.NPCType<SkyWorm>());
+				NPC.NewNPC((int)npc.Center.X + 900, (int)Main.player[npc.target].Center.Y - 500, ModContent.NPCType<SkyWorm>());
+				NPC.NewNPC((int)npc.Center.X - 900, (int)Main.player[npc.target].Center.Y - 500, ModContent.NPCType<SkyWorm>());
 			}
 		}
 
 		private void WormSpit(){
-			if (attackProgress == 0)
-			{
-				attackProgress = 50;
-				Projectile.NewProjectile(npc.Center.X, npc.Center.Y, 0, -10, ProjectileID.DD2BetsyFireball, 20, 20);
-			} 
-			attackProgress--;
-			if (attackProgress < 0){
-				attackProgress = 0;
-			}
+			attackProgress = 50;
+			Projectile.NewProjectile(npc.Center.X, npc.Center.Y, 0, -10, ProjectileID.DD2BetsyFireball, 20, 20);
+			 
 		}
 
 		private void WormSpear()
 		{
-			if (attackProgress == 0)
+			attackProgress = 100;
+			Player player = Main.player[npc.target];
+			Vector2 target = npc.HasPlayerTarget ? player.Center : Main.npc[npc.target].Center;
+
+			float speed = 40f;
+			var move = target - npc.Center;
+			float length = move.Length();
+			if (length > speed)
 			{
-				attackProgress = 100;
-
-				Player player = Main.player[npc.target];
-				Vector2 target = npc.HasPlayerTarget ? player.Center : Main.npc[npc.target].Center;
-
-				float speed = 40f;
-				var move = target - npc.Center;
-				float length = move.Length();
-				if (length > speed)
-				{
-					move *= speed / length;
-				}
-				length = move.Length();
-				if (length > speed)
-				{
-					move *= speed / length;
-				}
-
-				Projectile.NewProjectile(npc.Center.X, npc.Center.Y, move.X, move.Y, ModContent.ProjectileType<Projectiles.WormSpear>(), 20, 2f, Main.myPlayer, npc.whoAmI, 0f);
+				move *= speed / length;
 			}
-			attackProgress--;
-			if (attackProgress < 0)
+			length = move.Length();
+			if (length > speed)
 			{
-				attackProgress = 0;
+				move *= speed / length;
 			}
+
+			Projectile.NewProjectile(npc.Center.X, npc.Center.Y, move.X, move.Y, ModContent.ProjectileType<Projectiles.WormSpear>(), 20, 2f, Main.myPlayer, npc.whoAmI, 0f);
+
 		}
 
 		private void SummonCompanion(){
@@ -203,12 +325,6 @@ namespace WormRiderBoss.NPCs
 				attackProgress = 150;
 				//spawn the NPC using SpawnOnPlayer so it's not consistent where it comes from
 				NPC.SpawnOnPlayer(Main.player[npc.target].whoAmI, ModContent.NPCType<WormCompanion>());
-			}
-
-			attackProgress--;
-			if (attackProgress < 0)
-			{
-				attackProgress = 0;
 			}
 		}
 		
@@ -230,10 +346,8 @@ namespace WormRiderBoss.NPCs
 					WormWall();
 					break;
 				case 2:
-					if(attackProgress == 0){
-						//set the summon timer that will summon when done
-						summoningTimer = 200;
-					}
+					//set the summon timer that will summon when done
+					summoningTimer = 200;
 					break;
 				case 3:
 					WormSpit();
@@ -262,8 +376,15 @@ namespace WormRiderBoss.NPCs
 				summoningTimer--;
 				return;
 			}
-			//Attack
-			DoAttack(5);
+			//Attack after reset
+			if (attackProgress <= 0){
+				DoAttack(5);
+			}else{
+				attackProgress--;
+				if (attackProgress < 0){
+					attackProgress = 0;
+				}
+			}
 			//Targeting
 			npc.TargetClosest(true);
 			Player player = Main.player[npc.target];
