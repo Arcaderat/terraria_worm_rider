@@ -525,7 +525,7 @@ namespace WormRiderBoss.NPCs
 			}
 			//Movement
 			int distance = (int)Vector2.Distance(target, npc.Center);
-			int maxDistance = 300;
+			int maxDistance = 1000;
 			
 			//switch our action to move towards if we try to move away and can't go further
 			if (distance > maxDistance && lastAction % 2 == 1){
