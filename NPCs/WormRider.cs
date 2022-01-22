@@ -27,6 +27,9 @@ namespace WormRiderBoss.NPCs
 		private int lastAngleDiv;
 		private int lastDistance;
 
+		private int lastOwnHealthActual;
+		private int lastPlayerHealthActual;
+
 		//Our qTable for learning
 		private Dictionary<int, Dictionary<int, double[][][]>> qTable = new Dictionary<int, Dictionary<int, double[][][]>>();
 
@@ -61,9 +64,12 @@ namespace WormRiderBoss.NPCs
 			lastAngleDiv = angleDiv;
 
 			double exactDistance = Math.Sqrt((betweenVec.X * betweenVec.X) + (betweenVec.Y * betweenVec.Y));
-			int roundedDistance = (int) Math.Round(exactDistance / 25) * 25;
+			int roundedDistance = (int) Math.Round(exactDistance / 100) * 100;
 
 			lastDistance = roundedDistance;
+
+			lastOwnHealthActual = npc.life;
+			lastPlayerHealthActual = target.statLife;
 
 			double ownHealthPercent = (double) npc.life / (double) npc.lifeMax;
 			//statLifeMax2 accounts for item bonuses
@@ -156,18 +162,22 @@ namespace WormRiderBoss.NPCs
 			//how much we learn from the current action
 			double alpha = .7;
 			//how much to discount the future value estimate
-			double gamma = .99;
+			double gamma = .9;
 			
 			//TODO balance after attacks have been balanced
-			int playerHealthWeight = 2;
-			int ownHealthWeight = 1;
-			int companionBonus = 5;
-			int noChangePenalty = -1;
+			int playerHealthWeight = 3;
+			int ownHealthWeight = 9;
+			int companionBonus = 6;
+			int noChangePenalty = -3;
 
-			double changePlayerHealth = (double)(target.statLife - lastPlayerHealth) / (double)target.statLifeMax2;
-			double changeOwnHealth = (double)(npc.life - lastOwnHealth) / (double)npc.lifeMax;
+			double changePlayerHealth = (double)(target.statLife - lastPlayerHealthActual) / (double)target.statLifeMax2;
+			double changeOwnHealth = (double)(npc.life - lastOwnHealthActual) / (double)npc.lifeMax;
 
-			double reward = (-playerHealthWeight * changePlayerHealth) + (ownHealthWeight * changeOwnHealth) + companionBonus;
+			double reward = (playerHealthWeight * changePlayerHealth) - (ownHealthWeight * changeOwnHealth);
+
+			if (lastAction == 9 || lastAction == 10){
+				reward += companionBonus;
+			}
 
 			//slightly punish actions that involve no player interaction
 			if (changeOwnHealth == 0 && changePlayerHealth == 0){
@@ -201,7 +211,7 @@ namespace WormRiderBoss.NPCs
 			}
 
 			double exactDistance = Math.Sqrt((betweenVec.X * betweenVec.X) + (betweenVec.Y * betweenVec.Y));
-			int roundedDistance = (int) Math.Round(exactDistance / 25) * 25;
+			int roundedDistance = (int) Math.Round(exactDistance / 100) * 100;
 
 			double ownHealthPercent = (double)npc.life / (double)npc.lifeMax;
 			//statLifeMax2 accounts for item bonuses
