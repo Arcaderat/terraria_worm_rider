@@ -280,21 +280,17 @@ namespace WormRiderBoss.NPCs
 		private void writeQTable(){
 			string path = @"./qtable.txt";
 			// Create a file to write to. ok to overwrite previous
-			StreamWriter sw = File.CreateText(path);
-            
-			foreach(int key in qTable.Keys){
-				foreach(int key2 in qTable[key].Keys){
-					if (key2 <= 1500){ //trim off far away keys, they don't really matter
-						for (int i = 0; i < qTable[key][key2].Length; i++){
-							for (int j = 0; j < qTable[key][key2][i].Length; j++){
-								//Write the direction, distance, own health, and player health values
-								sw.WriteLine(key + "," + key2 + "," + i + "," + j);
-								for (int k = 0; k < qTable[key][key2][i][j].Length; k++){
-										//Write the move and its q value
-										sw.WriteLine(k + "," + qTable[key][key2][i][j][k]);
+            using(StreamWriter sw = new StreamWriter(path)){
+				foreach(int key in qTable.Keys){
+					foreach(int key2 in qTable[key].Keys){
+						if (key2 <= 1500){ //trim off far away keys, they don't really matter
+							for (int i = 0; i < qTable[key][key2].Length; i++){
+								for (int j = 0; j < qTable[key][key2][i].Length; j++){
+									for (int k = 0; k < qTable[key][key2][i][j].Length; k++){
+										//Write the state, action, and its q value
+										sw.WriteLine(key + "," + key2 + "," + i + "," + j + "," + k + "," + qTable[key][key2][i][j][k]);
+									}
 								}
-								//seperate each state with a new line
-								sw.WriteLine();
 							}
 						}
 					}
@@ -309,7 +305,7 @@ namespace WormRiderBoss.NPCs
             while ((s = sr.ReadLine()) != null)
             {
                 string[] state = s.Split(',');
-				
+
             }
 		}
 
