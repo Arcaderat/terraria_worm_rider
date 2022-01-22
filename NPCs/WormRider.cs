@@ -30,6 +30,8 @@ namespace WormRiderBoss.NPCs
 		private int lastOwnHealthActual;
 		private int lastPlayerHealthActual;
 
+		private bool loadedQTable = false;
+
 		//Our qTable for learning
 		private Dictionary<int, Dictionary<int, double[][][]>> qTable = new Dictionary<int, Dictionary<int, double[][][]>>();
 
@@ -299,13 +301,32 @@ namespace WormRiderBoss.NPCs
 		}
 
 		private void readQTable(){
-			string path = @"./qtabletest.txt";
-			StreamReader sr = File.OpenText(path);
-			string s;
-            while ((s = sr.ReadLine()) != null)
-            {
-                string[] state = s.Split(',');
-
+			string path = @"./qtable.txt";
+			//If the file exists, read it, otherwise do nothing
+			if(File.Exists(path)){
+				using(StreamReader sr = File.OpenText(path)){
+					string s;
+					while ((s = sr.ReadLine()) != null){
+                		string[] state = s.Split(',');
+						int angleDiv = int.Parse(state[0]);
+						int roundedDistance = int.Parse(state[1]);
+						//Make empty qTable values if this is a new state
+						if (! qTable.ContainsKey(angleDiv)){
+							qTable.Add(angleDiv, new Dictionary<int, double[][][]>());
+						}
+						if (! qTable[angleDiv].ContainsKey(roundedDistance)){
+							//C# jagged arrays are dumb
+							qTable[angleDiv].Add(roundedDistance, new double[4][][]);
+							for (int i = 0; i < 4; i++){
+								qTable[angleDiv][roundedDistance][i] = new double[4][];
+								for (int j = 0; j < 4; j++){
+									qTable[angleDiv][roundedDistance][i][j] = new double[10];
+								}
+							}
+						}
+						qTable[angleDiv][roundedDistance][int.Parse(state[2])][int.Parse(state[3])][int.Parse(state[4])] = double.Parse(state[5]);
+					}
+				}
             }
 		}
 
@@ -359,6 +380,24 @@ namespace WormRiderBoss.NPCs
 		}
 
 
+		private void logQTable(){
+			foreach(int key in qTable.Keys){
+				foreach(int key2 in qTable[key].Keys){
+					if (key2 <= 1500){
+						for (int i = 0; i < qTable[key][key2].Length; i++){
+							for (int j = 0; j < qTable[key][key2][i].Length; j++){
+								mod.Logger.Info(key + " " + key2 + " " + i + " " + j);
+								for (int k = 0; k < qTable[key][key2][i][j].Length; k++){
+									if(qTable[key][key2][i][j][k] != 0){
+										mod.Logger.Info(k + " " +qTable[key][key2][i][j][k]);
+									}
+			 					}
+							}
+						}
+					}
+				}
+			}
+		}
 		int frameNum;
 		public override void SetStaticDefaults() {
 			DisplayName.SetDefault("The Worm Rider");
@@ -366,7 +405,6 @@ namespace WormRiderBoss.NPCs
 			Main.npcFrameCount[npc.type] = 4;
 		}
 		public override void SetDefaults() {
-
 			attackProgress = 0;
 			npc.aiStyle = 3;
 			npc.lifeMax = 40000;
@@ -521,6 +559,12 @@ namespace WormRiderBoss.NPCs
 //Worm Rider AI
 		public override void AI()
 		{
+			//load the QTable if we haven't yet
+			if (!loadedQTable){
+				readQTable();
+				logQTable();
+				loadedQTable = true;
+			}
 			//if we're summoning, do nothing
 			if (summoningTimer > 0){
 				if (summoningTimer == 1){
@@ -590,22 +634,6 @@ namespace WormRiderBoss.NPCs
 		{
 			mod.Logger.Info("it died");
 			writeQTable();
-			// foreach(int key in qTable.Keys){
-			// 	foreach(int key2 in qTable[key].Keys){
-			// 		if (key2 <= 1500){
-			// 			for (int i = 0; i < qTable[key][key2].Length; i++){
-			// 				for (int j = 0; j < qTable[key][key2][i].Length; j++){
-			// 					mod.Logger.Info(key + " " + key2 + " " + i + " " + j);
-			// 					for (int k = 0; k < qTable[key][key2][i][j].Length; k++){
-			// 						if(qTable[key][key2][i][j][k] != 0){
-			// 							mod.Logger.Info(k + " " +qTable[key][key2][i][j][k]);
-			// 						}
-			// 					}
-			// 				}
-			// 			}
-			// 		}
-			// 	}
-			// }
 			return true;
 		}
 
