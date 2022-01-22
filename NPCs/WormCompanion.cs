@@ -92,33 +92,7 @@ namespace WormRiderBoss.NPCs{
         		base.AI();
 				//Work on attack cool down
 				attackProgress--;
-			}
-
-			// if (doingSpitAttack){
-			// 	//Find the nearest surface tile and add 20 to it
-			// 	int x = WorldGen.genRand.Next(0, Main.maxTilesX);
-			// 	//bool foundSurface = false;
-			// 	int y = 1;
-			// 	while (y < Main.worldSurface) {
-			// 		if (WorldGen.SolidTile(x, y)) {
-			// 			//foundSurface = true;
-			// 			break;
-			// 		}
-			// 		y++;
-			// 	}
-			// 	y += 20;
-				
-			// 	//If we haven't risen enough yet, just keep moving up
-			// 	if (npc.Center.Y > y){
-			// 		npc.velocity = new Vector2(0f, -20f);
-			// 	}else{ //otherwise, spit
-			// 		npc.velocity = new Vector2(0f, 0f);
-			// 		WormSpit();
-			// 		//reset our flag because we're done
-			// 		doingSpitAttack = false;
-			// 	}
-			// }
-			
+			}		
 
         	
         }
