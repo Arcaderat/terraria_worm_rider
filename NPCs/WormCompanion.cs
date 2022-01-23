@@ -105,7 +105,7 @@ namespace WormRiderBoss.NPCs{
            	{
 				case 0:
 					WormSpit();
-					attackProgress = 100;
+					attackProgress = 200;
 					break;
 			}
 

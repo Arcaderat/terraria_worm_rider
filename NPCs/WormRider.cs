@@ -445,7 +445,7 @@ namespace WormRiderBoss.NPCs
 //Worm Rider Attacks
 		private void Hookem()
 		{
-			attackProgress = 10;
+			attackProgress = 30;
 			//int damage = Main.expertMode ? 60 : 80;
 			int damage = 10;
 			Projectile.NewProjectile(npc.Center.X + 70, npc.Center.Y - 20, npc.velocity.X, npc.velocity.Y, ModContent.ProjectileType<Projectiles.HookRight>(), damage, 0f, Main.myPlayer, npc.whoAmI, 0f);
@@ -454,7 +454,7 @@ namespace WormRiderBoss.NPCs
 		}
 
 		private void WormWall() {
-			attackProgress = 16;
+			attackProgress = 150;
 			if (NPC.CountNPCS(510) < 12)
 			{
 				NPC.NewNPC((int)npc.Center.X + 300, (int)Main.player[npc.target].Center.Y - 500, ModContent.NPCType<SkyWorm>());
@@ -468,13 +468,13 @@ namespace WormRiderBoss.NPCs
 
 		private void WormSpit(){
 			attackProgress = 50;
-			Projectile.NewProjectile(npc.Center.X, npc.Center.Y, 0, -10, ProjectileID.DD2BetsyFireball, 20, 20);
+			Projectile.NewProjectile(npc.Center.X, npc.Center.Y, 0, -10, ProjectileID.DD2BetsyFireball, 80, 20);
 			 
 		}
 
 		private void WormSpear()
 		{
-			attackProgress = 100;
+			attackProgress = 40;
 			Player player = Main.player[npc.target];
 			Vector2 target = npc.HasPlayerTarget ? player.Center : Main.npc[npc.target].Center;
 
@@ -491,7 +491,7 @@ namespace WormRiderBoss.NPCs
 				move *= speed / length;
 			}
 
-			Projectile.NewProjectile(npc.Center.X, npc.Center.Y, move.X, move.Y, ModContent.ProjectileType<Projectiles.WormSpear>(), 20, 2f, Main.myPlayer, npc.whoAmI, 0f);
+			Projectile.NewProjectile(npc.Center.X, npc.Center.Y, move.X, move.Y, ModContent.ProjectileType<Projectiles.WormSpear>(), 30, 2f, Main.myPlayer, npc.whoAmI, 0f);
 
 		}
 
